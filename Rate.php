@@ -34,6 +34,10 @@ class Rate
      */
     public function __construct($data)
     {
+        $args = $_SERVER['argv'];
+        if (is_array($args) && count($args) > 1) {
+            // no log
+        }
         if (is_string($data)) {
             $this->type = 'file';
             $this->checkFile($data);
@@ -101,6 +105,35 @@ class Rate
         return false;
     }
 
+    function startsWith($haystack, $needle)
+    {
+        $length = strlen($needle);
+        return (substr($haystack, 0, $length) === $needle);
+    }
+
+    function endsWith($haystack, $needle)
+    {
+        $length = strlen($needle);
+        if ($length == 0) {
+            return true;
+        }
+
+        return (substr($haystack, -$length) === $needle);
+    }
+
+    public function isPhp(string $filename, string $file)
+    {
+        if (!$this->endsWith($filename, '.php')) {
+            return false;
+        }
+
+        if (!$this->startsWith($filename, '<?php')) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * @param string $file
      */
@@ -109,18 +142,22 @@ class Rate
         $file = $this->getFile($filename);
 
         if ($this->isClass($file)) {
-            $this->checkNamespace($file);
-            $this->checkUse($file);
-            $this->checkLines($file);
-            $this->checkFunctions($file);
-            $this->checkAttributes($file);
-            $this->checkConst($file);
-            $this->checkPhpDocs($file);
+            if ($this->isPhp($filename, $file)) {
+                $this->checkNamespace($file);
+                $this->checkUse($file);
+                $this->checkLines($file);
+                $this->checkFunctions($file);
+                $this->checkAttributes($file);
+                $this->checkConst($file);
+                $this->checkPhpDocs($file);
 
-            $this->files[$this->normalizeFileName($filename)] = $this->result;
-            $this->resetResult();
+                $this->files[$this->normalizeFileName($filename)] = $this->result;
+                $this->resetResult();
+            } else {
+                // message is no php file
+            }
         } else {
-            // Message not checked becasue not class
+            // Message not checked because not class
         }
     }
 
