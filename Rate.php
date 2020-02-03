@@ -16,6 +16,11 @@ class Rate
     /**
      * @var string
      */
+    public $filename = 'result.json';
+
+    /**
+     * @var string
+     */
     public $type = 'file';
 
     /**
@@ -51,24 +56,37 @@ class Rate
         $this->result['phpDocs']['end'] = substr_count($file, '*/');
     }
 
+    /**
+     * @param string $file
+     */
     public function checkNamespace(string $file)
     {
         // message if not 1
         $this->result['general']['namespace'] = substr_count($file, 'namespace ');
     }
 
+    /**
+     * @param string $file
+     */
     public function checkUse(string $file)
     {
         // message if not 1
         $this->result['general']['use'] = substr_count($file, 'use ');
     }
 
+    /**
+     * @param string $file
+     */
     public function checkConst(string $file)
     {
         // message if not 1 or more
         $this->result['general']['const'] = substr_count($file, 'const ');
     }
 
+    /**
+     * @param string $file
+     * @return bool
+     */
     public function isClass(string $file)
     {
         $tmp = explode(PHP_EOL, $file);
@@ -275,6 +293,7 @@ class Rate
     {
         // create phar out of script
         $this->result();
+        file_put_contents($this->filename, json_encode($this->result, JSON_FORCE_OBJECT));
         return json_encode($this->result, JSON_FORCE_OBJECT);
     }
 
