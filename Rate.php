@@ -9,7 +9,9 @@ class Rate
     /**
      * @var array
      */
-    public $result = [];
+    public $result = [
+        'general' => []
+    ];
 
     /**
      * @var string
@@ -39,18 +41,83 @@ class Rate
     /**
      * @param string $file
      */
+    public function checkPhpDocs(string $file)
+    {
+        // Message if start !== end
+        // message if every function, every attribute, every const and every class has none
+        $this->result['phpDocs'] = [];
+        $this->result['phpDocs']['start'] = substr_count($file, '/**');
+        $this->result['phpDocs']['anotations'] = substr_count($file, '* @');
+        $this->result['phpDocs']['end'] = substr_count($file, '*/');
+    }
+
+    public function checkNamespace(string $file)
+    {
+        // message if not 1
+        $this->result['general']['namespace'] = substr_count($file, 'namespace ');
+    }
+
+    public function checkUse(string $file)
+    {
+        // message if not 1
+        $this->result['general']['use'] = substr_count($file, 'use ');
+    }
+
+    public function checkConst(string $file)
+    {
+        // message if not 1 or more
+        $this->result['general']['const'] = substr_count($file, 'const ');
+    }
+
+    public function isClass(string $file)
+    {
+        $tmp = explode(PHP_EOL, $file);
+        // message not found in 5 lines
+        // check lines before execute
+
+        for ($i = 0; $i < 5; $i++) {
+            if (substr_count(strtolower($tmp[$i]), 'class ')) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param string $file
+     */
     public function checkFile(string $filename): void
     {
         $file = $this->getFile($filename);
 
-        $this->checkLines($file);
-        $this->checkFunctions($file);
-        $this->checkAttributes($file);
+        if ($this->isClass($file)) {
+            $this->checkNamespace($file);
+            $this->checkUse($file);
+            $this->checkLines($file);
+            $this->checkFunctions($file);
+            $this->checkAttributes($file);
+            $this->checkConst($file);
+            $this->checkPhpDocs($file);
 
-        var_dump($this->result);
-        $this->files[$this->normalizeFileName($filename)] = $this->result;
+            $this->files[$this->normalizeFileName($filename)] = $this->result;
+            $this->resetResult();
+        } else {
+            // Message not checked becasue not class
+        }
     }
 
+    /**
+     *
+     */
+    public function resetResult()
+    {
+        $this->result = [];
+    }
+
+    /**
+     * @param string $filename
+     * @return bool|false|string
+     */
     public function getFile(string $filename)
     {
         $file = false;
@@ -60,19 +127,29 @@ class Rate
         return $file ? $file : false;
     }
 
+    /**
+     * @param string $file
+     */
     public function checkLines(string $file)
     {
         $this->result['lines'] = substr_count($file, PHP_EOL);
     }
 
+    /**
+     * @param string $file
+     */
     public function checkFunctions(string $file)
     {
         $this->result['function'] = [];
+        // message when to long
         $this->checkFunctionsPublic($file);
         $this->checkFunctionsPrivate($file);
         $this->checkFunctionsProtected($file);
     }
 
+    /**
+     * @param $file
+     */
     public function checkFunctionsPublic($file)
     {
         preg_match_all("(public function)",
@@ -82,6 +159,9 @@ class Rate
         $this->result['function']['public'] = count($matches[0]);
     }
 
+    /**
+     * @param $file
+     */
     public function checkFunctionsPrivate($file)
     {
         preg_match_all("(private function)",
@@ -91,6 +171,9 @@ class Rate
         $this->result['function']['private'] = count($matches[0]);
     }
 
+    /**
+     * @param $file
+     */
     public function checkFunctionsProtected($file)
     {
         preg_match_all("(protected function)",
@@ -100,6 +183,9 @@ class Rate
         $this->result['function']['protected'] = count($matches[0]);
     }
 
+    /**
+     * @param string $file
+     */
     public function checkAttributes(string $file)
     {
         $this->result['attribute'] = [];
@@ -108,6 +194,9 @@ class Rate
         $this->checkAttributesPrivate($file);
     }
 
+    /**
+     * @param $file
+     */
     public function checkAttributesPublic($file)
     {
         preg_match_all('(public \$)',
@@ -117,6 +206,9 @@ class Rate
         $this->result['attribute']['public'] = count($matches[0]);
     }
 
+    /**
+     * @param $file
+     */
     public function checkAttributesProtected($file)
     {
         preg_match_all('(protected \$)',
@@ -126,6 +218,9 @@ class Rate
         $this->result['attribute']['protected'] = count($matches[0]);
     }
 
+    /**
+     * @param $file
+     */
     public function checkAttributesPrivate($file)
     {
         preg_match_all('(private \$)',
@@ -157,10 +252,20 @@ class Rate
     /**
      * @param string $path
      */
+    public function checkModule(string $path): void
+    {
+        // implement logic
+    }
+
+    /**
+     * @param string $path
+     */
     public function checkModules(string $path): void
     {
         // implement logic
         // add hint for module size
+        // generate modules list
+        // check with checkModule
     }
 
     /**
