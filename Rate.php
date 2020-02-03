@@ -147,11 +147,20 @@ class Rate
     }
 
     /**
-     * @param array $folder
+     * @param string $path
      */
-    public function checkFolder(array $folder): void
+    public function checkFolder(string $path): void
     {
+        // implement logic
+    }
 
+    /**
+     * @param string $path
+     */
+    public function checkModules(string $path): void
+    {
+        // implement logic
+        // add hint for module size
     }
 
     /**
@@ -159,6 +168,7 @@ class Rate
      */
     public function report(): string
     {
+        // create phar out of script
         $this->result();
         return json_encode($this->result, JSON_FORCE_OBJECT);
     }
