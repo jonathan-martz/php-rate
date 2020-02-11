@@ -1,0 +1,13 @@
+{
+    "name": "jonathan/php-rate",
+    "description": "Small class to check some simple rules. Optional is to create message about that to give some feedback.",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jonathan Martz",
+            "email": "jonathan.martz@flagbit.de"
+        }
+    ],
+    "require": {}
+}
