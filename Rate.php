@@ -38,6 +38,7 @@ class Rate
         if (is_array($args) && count($args) > 1) {
             // no log
         }
+
         if (is_string($data)) {
             $this->type = 'file';
             $this->checkFile($data);
@@ -123,11 +124,13 @@ class Rate
 
     public function isPhp(string $filename, string $file)
     {
+        $file = $this->getFile($filename);
+
         if (!$this->endsWith($filename, '.php')) {
             return false;
         }
 
-        if (!$this->startsWith($filename, '<?php')) {
+        if (!$this->startsWith($file, '<?php')) {
             return false;
         }
 
@@ -329,15 +332,16 @@ class Rate
     public function report(): string
     {
         // create phar out of script
-        $this->result();
+        $this->generateResult();
         file_put_contents($this->filename, json_encode($this->result, JSON_FORCE_OBJECT));
+        var_dump($this->result);
         return json_encode($this->result, JSON_FORCE_OBJECT);
     }
 
     /**
      *
      */
-    public function result(): void
+    public function generateResult(): void
     {
         $this->result = $this->files;
     }
